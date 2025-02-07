@@ -1,0 +1,86 @@
+.feature1-container {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+}
+
+.calendar-section {
+  flex: 2;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.todo-section {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.todo-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.todo-input input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+
+.todo-input button {
+  padding: 8px 16px;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #9CA3AF;
+  padding: 0 4px;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.todo-list {
+  min-height: 50px;
+}
+
+.delete-btn {
+  margin-left: auto;
+  padding: 4px 8px;
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #DC2626;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #9CA3AF;
+} 
