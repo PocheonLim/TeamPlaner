@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -6,7 +6,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import '../styles/Feature1.css';
+import '../styles/Schedule.css';
 
 interface Todo {
   id: number;
@@ -61,9 +61,16 @@ const SortableItem = ({ todo, onDelete, onToggle }: {
 };
 
 const Feature1 = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>(() => {
+    const savedTodos = localStorage.getItem('todos');
+    return savedTodos ? JSON.parse(savedTodos) : [];
+  });
   const [newTodo, setNewTodo] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -117,7 +124,7 @@ const Feature1 = () => {
   );
 
   return (
-    <div className="feature1-container">
+    <div className="schedule-container">
       <div className="calendar-section">
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}

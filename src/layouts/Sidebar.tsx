@@ -16,17 +16,17 @@ const Sidebar = () => {
           <li className="nav-item">
             <Link to="/">
               <span className="icon">📝</span>
-              <span className="text">팀소개</span>
+              <span className="text">홈</span>
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/feature1">
+            <Link to="/schedule">
               <span className="icon">📅</span>
               <span className="text">일정</span>
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/analytics">
+            <Link to="/review">
               <span className="icon">📊</span>
               <span className="text">분석리포트</span>
             </Link>

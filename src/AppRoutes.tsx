@@ -1,12 +1,12 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from "./pages/Home";
-import Feature1 from "./pages/Feature1";
+import Schedule from './pages/Schedule';
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/feature1" element={<Feature1 />} />
+      <Route path="/schedule" element={<Schedule />} />
     </Routes>
   );
 };
