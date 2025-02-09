@@ -15,7 +15,7 @@ const Sidebar = () => {
         <ul>
           <li className="nav-item">
             <Link to="/">
-              <span className="icon">📝</span>
+              <span className="icon">🏠</span>
               <span className="text">홈</span>
             </Link>
           </li>
@@ -26,9 +26,9 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/review">
-              <span className="icon">📊</span>
-              <span className="text">분석리포트</span>
+            <Link to="/diary">
+              <span className="icon">📝</span>
+              <span className="text">운동일지</span>
             </Link>
           </li>
           <li className="nav-item">

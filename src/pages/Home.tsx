@@ -22,7 +22,7 @@ const menuCards: MenuCard[] = [
     title: '운동일지',
     description: '오늘의 운동을 기록하세요',
     icon: '📝',
-    path: '/review',
+    path: '/diary',
     color: '#10B981'
   },
   {
