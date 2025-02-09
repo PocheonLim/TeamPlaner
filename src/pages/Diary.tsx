@@ -6,6 +6,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/Diary.css';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 
 interface WorkoutSet {
   weight: number;
@@ -35,8 +37,7 @@ const exerciseOptions = [
   { value: 'squat', label: '스쿼트' },
   { value: 'deadlift', label: '데드리프트' },
   { value: 'benchPress', label: '벤치프레스' },
-  { value: 'overhead', label: '오버헤드 프레스' },
-  { value: 'rowing', label: '로잉' }
+  { value: 'overhead', label: '밀리터리 프레스' },
 ];
 
 const Diary = () => {
@@ -99,6 +100,24 @@ const Diary = () => {
   const filteredRecords = records.filter(
     record => record.date === format(selectedDate, 'yyyy-MM-dd')
   );
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+    ],
+    content: dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '',
+    editorProps: {
+      attributes: {
+        class: 'diary-editor-content',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      setDailyNotes(prev => ({
+        ...prev,
+        [format(selectedDate, 'yyyy-MM-dd')]: editor.getHTML()
+      }));
+    },
+  });
 
   return (
     <div className="diary-container">
@@ -164,24 +183,48 @@ const Diary = () => {
 
         <div className="workout-history">
           <h2>운동 일지</h2>
-          {filteredRecords.map(record => (
-            <div key={record.id} className="record-card">
-              <h3>{exerciseOptions.find(opt => opt.value === record.exercise)?.label}</h3>
-              <p>무게: {record.sets[0].weight}kg / 횟수: {record.sets[0].reps}회</p>
-              {record.memo && <p className="memo">{record.memo}</p>}
+          <div className="workout-records">
+            {filteredRecords.map(record => (
+              <div key={record.id} className="record-card">
+                <h3>{exerciseOptions.find(opt => opt.value === record.exercise)?.label}</h3>
+                <p>무게: {record.sets[0].weight}kg / 횟수: {record.sets[0].reps}회</p>
+                {record.memo && <p className="memo">{record.memo}</p>}
+              </div>
+            ))}
+          </div>
+          <div className="diary-editor">
+            <div className="editor-toolbar">
+              <button
+                onClick={() => editor?.chain().focus().toggleBold().run()}
+                className={editor?.isActive('bold') ? 'is-active' : ''}
+                title="굵게"
+              >
+                B
+              </button>
+              <button
+                onClick={() => editor?.chain().focus().toggleItalic().run()}
+                className={editor?.isActive('italic') ? 'is-active' : ''}
+                title="기울임"
+              >
+                I
+              </button>
+              <button
+                onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                className={editor?.isActive('bulletList') ? 'is-active' : ''}
+                title="목록"
+              >
+                •
+              </button>
+              <button
+                onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                className={editor?.isActive('orderedList') ? 'is-active' : ''}
+                title="번호"
+              >
+                1.
+              </button>
             </div>
-          ))}
-          <textarea 
-            className="daily-note"
-            placeholder="오늘의 운동 내용을 자유롭게 기록하세요..."
-            value={dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || ''}
-            onChange={(e) => {
-              setDailyNotes(prev => ({
-                ...prev,
-                [format(selectedDate, 'yyyy-MM-dd')]: e.target.value
-              }));
-            }}
-          />
+            <EditorContent editor={editor} />
+          </div>
         </div>
 
         {selectedExercise && (

@@ -9,9 +9,6 @@ const Header = () => {
           <p>체계적인 계획을 세우고 이루세요</p>
         </div>
         <div className="header-actions">
-          <button className="notification-btn">
-            <span className="icon">🔔</span>
-          </button>
           <button className="settings-btn">
             <span className="icon">⚙️</span>
           </button>
