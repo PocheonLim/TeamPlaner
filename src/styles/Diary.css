@@ -81,29 +81,49 @@
     box-shadow: none;
   }
   
+  .workout-records {
+    margin-bottom: 20px;
+  }
+  
   .record-card {
-    padding: 16px;
-    background: #F9FAFB;
+    background-color: #f8f9fa;
     border-radius: 8px;
+    padding: 16px;
     margin-bottom: 12px;
   }
   
-  .record-card h3 {
-    margin: 0 0 8px 0;
-    color: #111827;
+  .record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .record-header h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+  }
+  
+  .delete-btn:hover {
+    background-color: #fee2e2;
   }
   
   .record-card p {
     margin: 4px 0;
-    color: #4B5563;
   }
   
   .record-card .memo {
-    color: #6B7280;
+    color: #666;
     font-size: 14px;
     margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #E5E7EB;
   }
   
   .chart-section {

@@ -54,6 +54,24 @@ const Diary = () => {
     return savedNotes ? JSON.parse(savedNotes) : {};
   });
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+    ],
+    content: dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '',
+    editorProps: {
+      attributes: {
+        class: 'diary-editor-content',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      setDailyNotes(prev => ({
+        ...prev,
+        [format(selectedDate, 'yyyy-MM-dd')]: editor.getHTML()
+      }));
+    },
+  });
+
   // 로컬 스토리지에 저장
   useEffect(() => {
     localStorage.setItem('workoutRecords', JSON.stringify(records));
@@ -83,6 +101,14 @@ const Diary = () => {
     return last7Days;
   };
 
+  // 날짜가 변경될 때마다 에디터 내용 업데이트
+  useEffect(() => {
+    if (editor) {
+      const savedContent = dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '';
+      editor.commands.setContent(savedContent);
+    }
+  }, [selectedDate, editor, dailyNotes]);
+
   const onSubmit = (data: WorkoutForm) => {
     const newRecord: WorkoutRecord = {
       id: Date.now(),
@@ -93,31 +119,35 @@ const Diary = () => {
     };
 
     setRecords([...records, newRecord]);
+
+    // 에디터에 운동 기록 추가
+    const exerciseName = exerciseOptions.find(opt => opt.value === data.exercise)?.label;
+    const workoutText = `
+• ${exerciseName}
+- 무게: ${data.weight}kg
+- 횟수: ${data.reps}회
+${data.memo ? `- 메모: ${data.memo}` : ''}
+\n`;
+
+    if (editor) {
+      const currentContent = editor.getHTML();
+      editor.commands.setContent(currentContent + workoutText);
+    }
+
     reset();
+  };
+
+  // 운동 기록 삭제 함수
+  const deleteRecord = (id: number) => {
+    if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) {
+      setRecords(records.filter(record => record.id !== id));
+    }
   };
 
   // 선택된 날짜의 기록만 필터링
   const filteredRecords = records.filter(
     record => record.date === format(selectedDate, 'yyyy-MM-dd')
   );
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-    ],
-    content: dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '',
-    editorProps: {
-      attributes: {
-        class: 'diary-editor-content',
-      },
-    },
-    onUpdate: ({ editor }) => {
-      setDailyNotes(prev => ({
-        ...prev,
-        [format(selectedDate, 'yyyy-MM-dd')]: editor.getHTML()
-      }));
-    },
-  });
 
   return (
     <div className="diary-container">
@@ -186,7 +216,16 @@ const Diary = () => {
           <div className="workout-records">
             {filteredRecords.map(record => (
               <div key={record.id} className="record-card">
-                <h3>{exerciseOptions.find(opt => opt.value === record.exercise)?.label}</h3>
+                <div className="record-header">
+                  <h3>{exerciseOptions.find(opt => opt.value === record.exercise)?.label}</h3>
+                  <button 
+                    onClick={() => deleteRecord(record.id)}
+                    className="delete-btn"
+                    title="삭제"
+                  >
+                    ❌
+                  </button>
+                </div>
                 <p>무게: {record.sets[0].weight}kg / 횟수: {record.sets[0].reps}회</p>
                 {record.memo && <p className="memo">{record.memo}</p>}
               </div>
@@ -220,7 +259,7 @@ const Diary = () => {
                 className={editor?.isActive('orderedList') ? 'is-active' : ''}
                 title="번호"
               >
-                1.
+                1
               </button>
             </div>
             <EditorContent editor={editor} />
