@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
-import '../styles/layout.css';
+import "../styles/layout/layout.css";
 
 interface RootLayoutProps {
   children: ReactNode;

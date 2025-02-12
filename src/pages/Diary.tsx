@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { format, subDays } from 'date-fns';
+import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import '../styles/Diary.css';
+import "../styles/pages/Diary.css";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -55,9 +55,7 @@ const Diary = () => {
   });
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-    ],
+    extensions: [StarterKit],
     content: dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '',
     editorProps: {
       attributes: {
@@ -72,36 +70,14 @@ const Diary = () => {
     },
   });
 
-  // 로컬 스토리지에 저장
   useEffect(() => {
     localStorage.setItem('workoutRecords', JSON.stringify(records));
   }, [records]);
 
-  // 일일 노트 저장
   useEffect(() => {
     localStorage.setItem('workoutDailyNotes', JSON.stringify(dailyNotes));
   }, [dailyNotes]);
 
-  // 차트 데이터 준비 함수 수정
-  const getChartData = () => {
-    if (!selectedExercise) return [];
-
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
-      const record = records.find(r => 
-        r.date === date && r.exercise === selectedExercise
-      );
-      return {
-        date: format(subDays(new Date(), i), 'MM/dd'),
-        volume: (record?.sets[0]?.weight || 0) * (record?.sets[0]?.reps || 0),
-        memo: record?.memo || ''  // 메모 데이터 추가
-      };
-    }).reverse();
-
-    return last7Days;
-  };
-
-  // 날짜가 변경될 때마다 에디터 내용 업데이트
   useEffect(() => {
     if (editor) {
       const savedContent = dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '';
@@ -119,35 +95,36 @@ const Diary = () => {
     };
 
     setRecords([...records, newRecord]);
-
-    // 에디터에 운동 기록 추가
-    const exerciseName = exerciseOptions.find(opt => opt.value === data.exercise)?.label;
-    const workoutText = `
-• ${exerciseName}
-- 무게: ${data.weight}kg
-- 횟수: ${data.reps}회
-${data.memo ? `- 메모: ${data.memo}` : ''}
-\n`;
-
-    if (editor) {
-      const currentContent = editor.getHTML();
-      editor.commands.setContent(currentContent + workoutText);
-    }
-
     reset();
   };
 
-  // 운동 기록 삭제 함수
   const deleteRecord = (id: number) => {
     if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) {
       setRecords(records.filter(record => record.id !== id));
     }
   };
 
-  // 선택된 날짜의 기록만 필터링
   const filteredRecords = records.filter(
     record => record.date === format(selectedDate, 'yyyy-MM-dd')
   );
+
+  const getChartData = () => {
+    if (!selectedExercise) return [];
+
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = format(new Date(Date.now() - i * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
+      const record = records.find(r => 
+        r.date === date && r.exercise === selectedExercise
+      );
+      return {
+        date: format(new Date(Date.now() - i * 24 * 60 * 60 * 1000), 'MM/dd'),
+        volume: (record?.sets[0]?.weight || 0) * (record?.sets[0]?.reps || 0),
+        memo: record?.memo || ''
+      };
+    }).reverse();
+
+    return last7Days;
+  };
 
   return (
     <div className="diary-container">

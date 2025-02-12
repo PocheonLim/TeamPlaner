@@ -1,3 +1,4 @@
+/* 전체 레이아웃 구조 */
 .root-layout {
     display: flex;
     min-height: 100vh;
