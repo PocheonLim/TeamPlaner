@@ -1,37 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/pages/Diary.css";
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-
-interface WorkoutSet {
-  weight: number;
-  reps: number;
-}
-
-interface WorkoutRecord {
-  id: number;
-  date: string;
-  exercise: string;
-  sets: WorkoutSet[];
-  memo: string;
-}
-
-interface WorkoutForm {
-  exercise: string;
-  weight: number;
-  reps: number;
-  memo: string;
-}
-
-interface DailyNote {
-  [key: string]: string;
-}
+import { EditorContent } from '@tiptap/react';
+import { useWorkoutRecords } from '../hooks/useWorkoutRecords';
+import { useDailyNotes } from '../hooks/useDailyNotes';
+import { useWorkoutChart } from '../hooks/useWorkoutChart';
+import { WorkoutForm } from '../types/workout';
 
 const exerciseOptions = [
   { value: 'squat', label: '스쿼트' },
@@ -41,90 +19,20 @@ const exerciseOptions = [
 ];
 
 const Diary = () => {
-  const [records, setRecords] = useState<WorkoutRecord[]>(() => {
-    const savedRecords = localStorage.getItem('workoutRecords');
-    return savedRecords ? JSON.parse(savedRecords) : [];
-  });
-  
-  const { register, handleSubmit, reset } = useForm<WorkoutForm>();
-  const [selectedExercise, setSelectedExercise] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [dailyNotes, setDailyNotes] = useState<DailyNote>(() => {
-    const savedNotes = localStorage.getItem('workoutDailyNotes');
-    return savedNotes ? JSON.parse(savedNotes) : {};
-  });
-
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '',
-    editorProps: {
-      attributes: {
-        class: 'diary-editor-content',
-      },
-    },
-    onUpdate: ({ editor }) => {
-      setDailyNotes(prev => ({
-        ...prev,
-        [format(selectedDate, 'yyyy-MM-dd')]: editor.getHTML()
-      }));
-    },
-  });
-
-  useEffect(() => {
-    localStorage.setItem('workoutRecords', JSON.stringify(records));
-  }, [records]);
-
-  useEffect(() => {
-    localStorage.setItem('workoutDailyNotes', JSON.stringify(dailyNotes));
-  }, [dailyNotes]);
-
-  useEffect(() => {
-    if (editor) {
-      const savedContent = dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '';
-      editor.commands.setContent(savedContent);
-    }
-  }, [selectedDate, editor, dailyNotes]);
+  const [selectedExercise, setSelectedExercise] = useState('');
+  const { records, addRecord, deleteRecord, getFilteredRecords } = useWorkoutRecords(selectedDate);
+  const { editor } = useDailyNotes(selectedDate);
+  const { getChartData } = useWorkoutChart(records);
+  const { register, handleSubmit, reset } = useForm<WorkoutForm>();
 
   const onSubmit = (data: WorkoutForm) => {
-    const newRecord: WorkoutRecord = {
-      id: Date.now(),
-      date: format(selectedDate, 'yyyy-MM-dd'),
-      exercise: data.exercise,
-      sets: [{ weight: data.weight, reps: data.reps }],
-      memo: data.memo,
-    };
-
-    setRecords([...records, newRecord]);
+    addRecord(data);
     reset();
   };
 
-  const deleteRecord = (id: number) => {
-    if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) {
-      setRecords(records.filter(record => record.id !== id));
-    }
-  };
-
-  const filteredRecords = records.filter(
-    record => record.date === format(selectedDate, 'yyyy-MM-dd')
-  );
-
-  const getChartData = () => {
-    if (!selectedExercise) return [];
-
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = format(new Date(Date.now() - i * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
-      const record = records.find(r => 
-        r.date === date && r.exercise === selectedExercise
-      );
-      return {
-        date: format(new Date(Date.now() - i * 24 * 60 * 60 * 1000), 'MM/dd'),
-        volume: (record?.sets[0]?.weight || 0) * (record?.sets[0]?.reps || 0),
-        memo: record?.memo || ''
-      };
-    }).reverse();
-
-    return last7Days;
-  };
+  const filteredRecords = getFilteredRecords();
+  const chartData = getChartData(selectedExercise);
 
   return (
     <div className="diary-container">
@@ -247,7 +155,7 @@ const Diary = () => {
           <div className="chart-section">
             <h2>{exerciseOptions.find(opt => opt.value === selectedExercise)?.label} 진행 현황</h2>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={getChartData()}>
+              <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
