@@ -6,7 +6,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import "../styles/pages/Schedule.css";
+import styled from 'styled-components';
 
 interface Todo {
   id: number;
@@ -14,6 +14,93 @@ interface Todo {
   date: string;
   completed: boolean;
 }
+
+const ScheduleContainer = styled.div`
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+`;
+
+const CalendarSection = styled.div`
+  flex: 2;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const TodoSection = styled.div`
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const TodoInputContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+`;
+
+const TodoInput = styled.input`
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+`;
+
+const AddButton = styled.button`
+  padding: 8px 16px;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
+const TodoList = styled.div`
+  min-height: 50px;
+`;
+
+const TodoItemContainer = styled.div<{ $isDragging?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  background: white;
+`;
+
+const CompletedText = styled.span<{ $completed: boolean }>`
+  text-decoration: ${props => props.$completed ? 'line-through' : 'none'};
+  color: ${props => props.$completed ? '#9CA3AF' : 'inherit'};
+`;
+
+const DragHandle = styled.div`
+  cursor: grab;
+  color: #9CA3AF;
+  padding: 0 4px;
+  user-select: none;
+  
+  &:active {
+    cursor: grabbing;
+  }
+`;
+
+const DeleteButton = styled.button`
+  margin-left: auto;
+  padding: 4px 8px;
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #DC2626;
+  }
+`;
 
 const SortableItem = ({ todo, onDelete, onToggle }: { 
   todo: Todo; 
@@ -34,33 +121,29 @@ const SortableItem = ({ todo, onDelete, onToggle }: {
   };
 
   return (
-    <div 
+    <TodoItemContainer 
       ref={setNodeRef}
       style={style}
-      className="todo-item"
     >
-      <div {...attributes} {...listeners} className="drag-handle">
+      <DragHandle {...attributes} {...listeners}>
         ⋮⋮
-      </div>
+      </DragHandle>
       <input
         type="checkbox"
         checked={todo.completed}
         onChange={() => onToggle(todo.id)}
       />
-      <span className={todo.completed ? 'completed' : ''}>
+      <CompletedText $completed={todo.completed}>
         {todo.title}
-      </span>
-      <button 
-        className="delete-btn"
-        onClick={() => onDelete(todo.id)}
-      >
+      </CompletedText>
+      <DeleteButton onClick={() => onDelete(todo.id)}>
         삭제
-      </button>
-    </div>
+      </DeleteButton>
+    </TodoItemContainer>
   );
 };
 
-const Feature1 = () => {
+const Schedule = () => {
   const [todos, setTodos] = useState<Todo[]>(() => {
     const savedTodos = localStorage.getItem('todos');
     return savedTodos ? JSON.parse(savedTodos) : [];
@@ -124,8 +207,8 @@ const Feature1 = () => {
   );
 
   return (
-    <div className="schedule-container">
-      <div className="calendar-section">
+    <ScheduleContainer>
+      <CalendarSection>
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
@@ -146,19 +229,19 @@ const Feature1 = () => {
             setSelectedDate(new Date(info.dateStr));
           }}
         />
-      </div>
+      </CalendarSection>
       
-      <div className="todo-section">
+      <TodoSection>
         <h2>{formatDate(selectedDate)}의 플랜</h2>
-        <div className="todo-input">
-          <input
+        <TodoInputContainer>
+          <TodoInput
             type="text"
             value={newTodo}
             onChange={(e) => setNewTodo(e.target.value)}
             placeholder="새로운 일정을 입력하세요"
           />
-          <button onClick={handleAddTodo}>추가</button>
-        </div>
+          <AddButton onClick={handleAddTodo}>추가</AddButton>
+        </TodoInputContainer>
         
         <DndContext
           sensors={sensors}
@@ -169,7 +252,7 @@ const Feature1 = () => {
             items={filteredTodos.map(todo => todo.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="todo-list">
+            <TodoList>
               {filteredTodos.map((todo) => (
                 <SortableItem
                   key={todo.id}
@@ -178,12 +261,12 @@ const Feature1 = () => {
                   onToggle={handleToggleTodo}
                 />
               ))}
-            </div>
+            </TodoList>
           </SortableContext>
         </DndContext>
-      </div>
-    </div>
+      </TodoSection>
+    </ScheduleContainer>
   );
 };
 
-export default Feature1; 
+export default Schedule; 

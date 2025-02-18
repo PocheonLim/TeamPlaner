@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import "../styles/pages/Home.css";
+import styled from 'styled-components';
+import { iconStyles } from '../styles/common';
 
 interface MenuCard {
   title: string;
@@ -34,24 +35,67 @@ const menuCards: MenuCard[] = [
   }
 ];
 
+const HomeContainer = styled.div`
+  padding: 32px;
+  min-height: 100vh;
+`;
+
+const MenuGrid = styled(motion.div)`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const MenuCardStyled = styled(motion.div)<{ $backgroundColor: string }>`
+  background-color: ${props => props.$backgroundColor};
+  padding: 24px;
+  border-radius: 16px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 200px;
+`;
+
+const CardIcon = styled.span`
+  ${iconStyles}
+  margin-bottom: 16px;
+`;
+
+const CardTitle = styled.h2`
+  font-size: 24px;
+  margin: 0 0 8px 0;
+`;
+
+const CardDescription = styled.p`
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.9;
+`;
+
 const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="home-container">
-      <motion.div
+    <HomeContainer>
+      <MenuGrid
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="menu-grid"
       >
         {menuCards.map((card, index) => (
-          <motion.div
+          <MenuCardStyled
             key={card.title}
-            className="menu-card"
+            $backgroundColor={card.color}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(card.path)}
-            style={{ backgroundColor: card.color }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ 
               opacity: 1, 
@@ -59,13 +103,13 @@ const Home = () => {
               transition: { delay: index * 0.1 } 
             }}
           >
-            <span className="card-icon">{card.icon}</span>
-            <h2>{card.title}</h2>
-            <p>{card.description}</p>
-          </motion.div>
+            <CardIcon>{card.icon}</CardIcon>
+            <CardTitle>{card.title}</CardTitle>
+            <CardDescription>{card.description}</CardDescription>
+          </MenuCardStyled>
         ))}
-      </motion.div>
-    </div>
+      </MenuGrid>
+    </HomeContainer>
   );
 };
 
