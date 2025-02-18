@@ -26,13 +26,6 @@ const menuCards: MenuCard[] = [
     color: '#10B981'
   },
   {
-    title: '분석리포트',
-    description: '학습 현황을 분석해보세요',
-    icon: '📊',
-    path: '/analytics',
-    color: '#F59E0B'
-  },
-  {
     title: '커뮤니티',
     description: '다른 학습자들과 소통해보세요',
     icon: '💬',
