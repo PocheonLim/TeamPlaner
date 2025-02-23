@@ -7,6 +7,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import styled from 'styled-components';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Todo {
   id: number;
@@ -144,16 +145,18 @@ const SortableItem = ({ todo, onDelete, onToggle }: {
 };
 
 const Schedule = () => {
+  const { user } = useAuth();
   const [todos, setTodos] = useState<Todo[]>(() => {
-    const savedTodos = localStorage.getItem('todos');
-    return savedTodos ? JSON.parse(savedTodos) : [];
+    return user?.todos || [];
   });
   const [newTodo, setNewTodo] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos));
-  }, [todos]);
+    if (user) {
+      setTodos(user.todos);
+    }
+  }, [user]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

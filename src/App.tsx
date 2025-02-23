@@ -1,20 +1,24 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import RootLayout from "./layouts/RootLayout";
-import AppRoutes from "./AppRoutes";
+import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
+import { theme } from './styles/theme';
 import { GlobalStyle } from './styles/GlobalStyle';
+import { AuthProvider } from './contexts/AuthContext';
 import { SidebarProvider } from './contexts/SidebarContext';
+import AppRoutes from './AppRoutes';
 
-function App() {
+const App = () => {
   return (
-    <Router>
-      <SidebarProvider>
-        <GlobalStyle />
-        <RootLayout>
-          <AppRoutes />
-        </RootLayout>
-      </SidebarProvider>
-    </Router>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <AuthProvider>
+          <SidebarProvider>
+            <GlobalStyle />
+            <AppRoutes />
+          </SidebarProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

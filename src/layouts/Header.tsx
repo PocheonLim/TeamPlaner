@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const HeaderContainer = styled.header`
   background-color: white;
@@ -54,19 +56,31 @@ const Icon = styled.span`
 `;
 
 const Header = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleProfileClick = () => {
+    if (user) {
+      logout();
+    }
+    setTimeout(() => {
+      navigate('/auth', { replace: true });
+    }, 0);
+  };
+
   return (
     <HeaderContainer>
       <HeaderContent>
         <WelcomeMessage>
-          <h1>사용자님 안녕하세요</h1>
+          <h1>{user ? `${user.username}님 안녕하세요` : '환영합니다'}</h1>
           <p>체계적인 계획을 세우고 이루세요</p>
         </WelcomeMessage>
         <HeaderActions>
           <ActionButton>
             <Icon>⚙️</Icon>
           </ActionButton>
-          <ActionButton>
-            <Icon>👤</Icon>
+          <ActionButton onClick={handleProfileClick}>
+            <Icon>{user ? '🚪' : '👤'}</Icon>
           </ActionButton>
         </HeaderActions>
       </HeaderContent>

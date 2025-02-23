@@ -1,48 +1,29 @@
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-
-interface DailyNote {
-  [key: string]: string;
-}
+import { useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const useDailyNotes = (selectedDate: Date) => {
-  const [dailyNotes, setDailyNotes] = useState<DailyNote>(() => {
-    const savedNotes = localStorage.getItem('workoutDailyNotes');
-    return savedNotes ? JSON.parse(savedNotes) : {};
-  });
-
+  const { user } = useAuth();
+  
   const editor = useEditor({
     extensions: [StarterKit],
-    content: dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '',
-    editorProps: {
-      attributes: {
-        class: 'diary-editor-content',
-      },
-    },
+    content: '',
     onUpdate: ({ editor }) => {
+      if (!user) return;
+      // 실제 구현에서는 여기서 서버에 데이터를 저장해야 합니다
       const content = editor.getHTML();
-      setDailyNotes(prev => ({
-        ...prev,
-        [format(selectedDate, 'yyyy-MM-dd')]: content
-      }));
-    },
+      console.log('저장된 내용:', content);
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('workoutDailyNotes', JSON.stringify(dailyNotes));
-  }, [dailyNotes]);
-
-  useEffect(() => {
-    if (editor) {
-      const savedContent = dailyNotes[format(selectedDate, 'yyyy-MM-dd')] || '';
-      editor.commands.setContent(savedContent);
+    if (user && editor) {
+      const dateStr = selectedDate.toISOString().split('T')[0];
+      const content = user.notes[dateStr] || '';
+      editor.commands.setContent(content);
     }
-  }, [selectedDate, editor, dailyNotes]);
+  }, [selectedDate, user, editor]);
 
-  return {
-    editor,
-    dailyNotes
-  };
+  return { editor };
 }; 

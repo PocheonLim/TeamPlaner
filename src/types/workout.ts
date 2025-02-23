@@ -15,5 +15,5 @@ export interface WorkoutForm {
   exercise: string;
   weight: number;
   reps: number;
-  memo: string;
+  memo?: string;
 } 

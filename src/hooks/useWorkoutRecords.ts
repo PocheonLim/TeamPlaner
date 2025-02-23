@@ -1,39 +1,52 @@
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { WorkoutRecord, WorkoutForm } from '../types/workout';
+import { useAuth } from '../contexts/AuthContext';
+import { WorkoutForm } from '../types/workout';
+
+interface WorkoutRecord {
+  id: number;
+  date: string;
+  exercise: string;
+  sets: Array<{ weight: number; reps: number }>;
+  memo?: string;
+}
 
 export const useWorkoutRecords = (selectedDate: Date) => {
-  const [records, setRecords] = useState<WorkoutRecord[]>(() => {
-    const savedRecords = localStorage.getItem('workoutRecords');
-    return savedRecords ? JSON.parse(savedRecords) : [];
-  });
+  const { user } = useAuth();
+  const [records, setRecords] = useState<WorkoutRecord[]>([]);
 
   useEffect(() => {
-    localStorage.setItem('workoutRecords', JSON.stringify(records));
-  }, [records]);
+    if (user?.workouts) {
+      setRecords(user.workouts);
+    }
+  }, [user]);
+
+  const getFilteredRecords = () => {
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    return records.filter(record => record.date === dateStr);
+  };
 
   const addRecord = (data: WorkoutForm) => {
+    if (!user) return;
+
     const newRecord: WorkoutRecord = {
       id: Date.now(),
-      date: format(selectedDate, 'yyyy-MM-dd'),
+      date: selectedDate.toISOString().split('T')[0],
       exercise: data.exercise,
-      sets: [{ weight: data.weight, reps: data.reps }],
-      memo: data.memo,
+      sets: [{ weight: Number(data.weight), reps: Number(data.reps) }],
+      memo: data.memo
     };
-    setRecords([...records, newRecord]);
-    return newRecord;
+
+    const updatedRecords = [...records, newRecord];
+    setRecords(updatedRecords);
+    // 실제 구현에서는 여기서 서버에 데이터를 저장해야 합니다
   };
 
   const deleteRecord = (id: number) => {
-    if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) {
-      setRecords(records.filter(record => record.id !== id));
-    }
-  };
+    if (!user) return;
 
-  const getFilteredRecords = () => {
-    return records.filter(
-      record => record.date === format(selectedDate, 'yyyy-MM-dd')
-    );
+    const updatedRecords = records.filter(record => record.id !== id);
+    setRecords(updatedRecords);
+    // 실제 구현에서는 여기서 서버에서 데이터를 삭제해야 합니다
   };
 
   return {

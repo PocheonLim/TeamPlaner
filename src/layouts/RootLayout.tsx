@@ -1,13 +1,9 @@
-import { ReactNode } from 'react';
+import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import { useSidebar } from '../contexts/SidebarContext';
-
-interface RootLayoutProps {
-  children: ReactNode;
-}
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -38,7 +34,7 @@ const Main = styled.main`
   border-bottom: 1px solid #E5E7EB;
 `;
 
-const RootLayout = ({ children }: RootLayoutProps) => {
+const RootLayout = () => {
   const { isOpen } = useSidebar();
 
   return (
@@ -46,7 +42,9 @@ const RootLayout = ({ children }: RootLayoutProps) => {
       <Sidebar />
       <MainContent $isOpen={isOpen}>
         <Header />
-        <Main>{children}</Main>
+        <Main>
+          <Outlet />
+        </Main>
         <Footer />
       </MainContent>
     </LayoutContainer>
