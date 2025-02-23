@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
+import { useSidebar } from '../contexts/SidebarContext';
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -14,9 +15,9 @@ const LayoutContainer = styled.div`
   background-color: #f0f2f5;
 `;
 
-const MainContent = styled.div`
+const MainContent = styled.div<{ $isOpen: boolean }>`
   flex: 1;
-  margin-left: 236px;
+  margin-left: ${props => props.$isOpen ? '236px' : '96px'};
   min-height: 100vh;
   margin-top: 16px;
   margin-right: 16px;
@@ -26,6 +27,7 @@ const MainContent = styled.div`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease;
 `;
 
 const Main = styled.main`
@@ -37,10 +39,12 @@ const Main = styled.main`
 `;
 
 const RootLayout = ({ children }: RootLayoutProps) => {
+  const { isOpen } = useSidebar();
+
   return (
     <LayoutContainer>
       <Sidebar />
-      <MainContent>
+      <MainContent $isOpen={isOpen}>
         <Header />
         <Main>{children}</Main>
         <Footer />
