@@ -8,7 +8,7 @@ export interface WorkoutRecord {
   date: string;
   exercise: string;
   sets: WorkoutSet[];
-  memo: string;
+  memo?: string;
 }
 
 export interface WorkoutForm {

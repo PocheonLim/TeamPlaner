@@ -17,6 +17,42 @@
           "title": "운동가기",
           "date": "2025-02-23",
           "completed": true
+        },
+        {
+          "id": 3,
+          "title": "병원가기",
+          "date": "2025-02-09",
+          "completed": true
+        },
+        {
+          "id": 4,
+          "title": "가족외식",
+          "date": "2025-02-24",
+          "completed": true
+        },
+        {
+          "id": 5,
+          "title": "운동가기",
+          "date": "2025-02-18",
+          "completed": false
+        },
+        {
+          "id": 6,
+          "title": "서류제출",
+          "date": "2025-02-16",
+          "completed": true
+        },
+        {
+          "id": 7,
+          "title": "강의듣기",
+          "date": "2025-02-06",
+          "completed": true
+        },
+        {
+          "id": 8,
+          "title": "병원가기",
+          "date": "2025-02-19",
+          "completed": false
         }
       ],
       "workouts": [
